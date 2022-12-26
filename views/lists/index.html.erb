@@ -9,9 +9,18 @@
 <body>
   <h1>Hello, World!</h1>
 
+  <form action="/lists" method="post">
+    <input name="list[name]" />
+    <button type="submit">Create list</button>
+  </form>
+
   <ul>
     <% @lists.each do |list| %>
-      <li><%= list[:name] %></li>
+      <li>
+        <a href="/lists/<%= list[:id] %>">
+          <%= list[:name] %>
+        </a>
+      </li>
     <% end %>
   </ul>
 </body>
