@@ -1,9 +1,12 @@
-# Wallet
+# Lists
 
 ### Requirements
 
 - Ruby 3.2.0
 - Bundler 2.4.1
+- SQLite
+- Node.js
+- Yarn
 
 ### Setup
 
@@ -17,11 +20,18 @@ cd lists_sinatra
 #### 2. Install dependecies
 
 ```bash
-bundle
+bundle && yarn
 ```
 
-#### 3. Start the application
+#### 4. Setup the database
 
 ```bash
+sequel -m db/migrations sqlite://db/lists_database.db
+```
+
+#### 5. Start the application
+
+```bash
+yarn run dev
 rackup
 ```
