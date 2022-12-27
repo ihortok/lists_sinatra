@@ -1,18 +1,37 @@
+<% list_item_attributes = JSON.parse(@list[:item_attributes] || "{}") %>
+
 <h1>Edit "<%= @list[:name] %>"</h1>
 
-<form action="/lists" method="post" class="mb-4">
+<form action="/lists" method="post" class="mb-4" style="max-width: 500px">
   <input type="hidden" name="_method" value="PATCH">
   <input type="hidden" name="id" value="<%= @list[:id] %>" />
-  <div class="d-flex flex-column flex-md-row gap-3">
-    <div class="col mr-4">
-      <input name="list[name]" value="<%= @list[:name] %>" type="text" class="form-control" placeholder="Awesome list" aria-label="Name" required>
-    </div>
-    <div class="col">
-      <input name="list[description]" value="<%= @list[:description] %>" type="text" class="form-control" placeholder="Awesome list's description" aria-label="Descpiption">
-    </div>
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary">Update list</button>
-    </div>
+  <div class="mb-3">
+    <input name="list[name]" value="<%= @list[:name] %>" type="text" class="form-control" placeholder="Awesome list" aria-label="Name" required>
+  </div>
+  <div class="mb-3">
+    <input name="list[description]" value="<%= @list[:description] %>" type="text" class="form-control" placeholder="Awesome list's description" aria-label="Descpiption">
+  </div>
+  <div class="d-flex align-items-center gap-3 mb-2">
+    <small class="flex-grow-1 mb-2">You can specify attributes which items of the list would have</small>
+    <button type="button" id="add_item_attribute" class="btn btn-primary" style="min-width: 10px">
+      <span class="d-inline-block" style="width: 10px">+</span>
+    </button>
+  </div>
+  <div id="item_attributes">
+    <% list_item_attributes.each do |key, attribute| %>
+      <div id="item_attribute_<%= key %>" class="item_attribute mb-3 d-flex gap-3">
+        <input name="item_attributes[<%= key %>][name]" value="<%= attribute["name"] %>" type="text" class="form-control" placeholder="Item's attribute">
+        <select name="item_attributes[<%= key %>][type]" class="form-control">
+          <option value="String" <%= :selected if attribute["type"] == "String" %>>String</option>
+          <option value="Integer" <%= :selected if attribute["type"] == "Integer" %>>Integer</option></select>
+        <button type="button" class="remove_item_attribute btn btn-danger" onclick="document.getElementById('item_attribute_<%= key %>').remove();">
+          <span class="d-inline-block" style="width: 10px">-</span>
+        </button>
+      </div>
+    <% end %>
+  </div>
+  <div class="">
+    <button type="submit" class="btn btn-primary">Update list</button>
   </div>
 </form>
 
