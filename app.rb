@@ -4,19 +4,19 @@ class App < Sinatra::Base
   get '/' do
     @lists = database[:lists]
 
-    erb :'lists/index.html'
+    erb :'lists/index.html', layout: :'layouts/application.html'
   end
 
   get '/lists/:id' do
     @list = database[:lists].where(id: params[:id]).first
 
-    erb :'lists/show.html'
+    erb :'lists/show.html', layout: :'layouts/application.html'
   end
 
   get '/lists/:id/edit' do
     @list = database[:lists].where(id: params[:id]).first
 
-    erb :'lists/edit.html'
+    erb :'lists/edit.html', layout: :'layouts/application.html'
   end
 
   post '/lists' do

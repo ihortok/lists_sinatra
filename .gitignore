@@ -1,1 +1,3 @@
 db/lists_database.db
+node_modules
+public/dist
