@@ -9,6 +9,7 @@ class App < Sinatra::Base
 
   get '/lists/:id' do
     @list = database[:lists].where(id: params[:id]).first
+    @items = database[:items].where(list_id: params[:id]).all
 
     erb :'lists/show.html', layout: :'layouts/application.html'
   end
@@ -36,6 +37,18 @@ class App < Sinatra::Base
     database[:lists].filter(id: params[:id]).delete
 
     redirect '/'
+  end
+
+  post '/lists/:id/items' do
+    database[:items].insert(params[:item].merge({ list_id: params[:id] }))
+
+    redirect "/lists/#{params[:id]}"
+  end
+
+  delete '/lists/:id/items' do
+    database[:items].filter(id: params[:item_id]).delete
+
+    redirect "/lists/#{params[:id]}"
   end
 
   private
