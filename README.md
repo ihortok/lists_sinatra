@@ -23,13 +23,13 @@ cd lists_sinatra
 bundle && yarn
 ```
 
-#### 4. Setup the database
+#### 3. Setup the database
 
 ```bash
 sequel -m db/migrations sqlite://db/lists_database.db
 ```
 
-#### 5. Start the application
+#### 4. Start the application
 
 ```bash
 yarn run dev

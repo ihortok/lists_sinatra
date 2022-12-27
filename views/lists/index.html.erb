@@ -1,16 +1,34 @@
-<h1>Hello, World!</h1>
+<h1>Lists</h1>
 
-<form action="/lists" method="post">
-  <input name="list[name]" />
-  <button type="submit">Create list</button>
+<form action="/lists" method="post" class="mb-4">
+  <div class="d-flex flex-column flex-md-row gap-3">
+    <div class="col mr-4">
+      <input name="list[name]" type="text" class="form-control" placeholder="Awesome list" aria-label="Name" required>
+    </div>
+    <div class="col">
+      <input name="list[description]" type="text" class="form-control" placeholder="Awesome list's description" aria-label="Descpiption">
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary">Create list</button>
+    </div>
+  </div>
 </form>
 
-<ul>
-  <% @lists.each do |list| %>
-    <li>
-      <a href="/lists/<%= list[:id] %>">
-        <%= list[:name] %>
-      </a>
-    </li>
-  <% end %>
-</ul>
+<% if @lists.empty? %>
+  You haven't created any list yet.
+<% else %>
+  <div class="row">
+    <% @lists.each do |list| %>
+      <div class="col-md-6 col-lg-4 col-xl-3 mb-3 mb-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"><%= list[:name] %></h5>
+            <p class="card-text"><%= list[:description] %></p>
+            <a href="/lists/<%= list[:id] %>" class="card-link">Show</a>
+            <a href="/lists/<%= list[:id] %>/edit" class="card-link">Edit</a>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
