@@ -8,10 +8,46 @@
   <form action="/lists" method="post">
     <input type="hidden" name="_method" value="DELETE">
     <input type="hidden" name="id" value="<%= @list[:id] %>" />
-    <button type="submit" class="btn btn-danger">
-      Delete
-    </button>
+    <button type="submit" class="btn btn-danger">Delete</button>
   </form>
 </div>
 
 <a href="/">back to lists</a>
+
+<form action="/lists/<%= @list[:id] %>/items" method="post" class="my-4" style="max-width: 500px">
+  <div class="d-flex flex-column flex-md-row gap-3">
+    <div class="col mr-4">
+      <input name="item[name]" type="text" class="form-control" placeholder="Awesome item" aria-label="Name" required>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary">Create item</button>
+    </div>
+  </div>
+</form>
+
+<% if @items.empty? %>
+  You haven't created any item for this list yet.
+<% else %>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @items.each do |item| %>
+        <tr>
+          <td><%= item[:name] %></td>
+          <td>
+            <form action="/lists/<%= @list[:id] %>/items" method="post">
+              <input type="hidden" name="_method" value="DELETE">
+              <input type="hidden" name="item_id" value="<%= item[:id] %>" />
+              <button type="submit" class="btn btn-danger">X</button>
+            </form>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
