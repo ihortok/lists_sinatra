@@ -1,10 +1,20 @@
 <h1>Edit "<%= @list[:name] %>"</h1>
 
-<form action="/lists" method="post">
+<form action="/lists" method="post" class="mb-4">
   <input type="hidden" name="_method" value="PATCH">
   <input type="hidden" name="id" value="<%= @list[:id] %>" />
-  <input name="list[name]" value="<%= @list[:name] %>" />
-  <button type="submit">Update list</button>
+  <div class="d-flex flex-column flex-md-row gap-3">
+    <div class="col mr-4">
+      <input name="list[name]" value="<%= @list[:name] %>" type="text" class="form-control" placeholder="Awesome list" aria-label="Name" required>
+    </div>
+    <div class="col">
+      <input name="list[description]" value="<%= @list[:description] %>" type="text" class="form-control" placeholder="Awesome list's description" aria-label="Descpiption">
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary">Update list</button>
+    </div>
+  </div>
 </form>
 
-<a href="/lists/<%= @list[:id] %>">back to list</a>
+<a href="/lists/<%= @list[:id] %>">back to list</a> |
+<a href="/">back to lists</a>
