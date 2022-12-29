@@ -21,32 +21,34 @@ class App < Sinatra::Base
   end
 
   post '/lists' do
-    database[:lists].insert(params[:list])
+    database[:lists].insert(params[:list].merge({ item_attributes: }))
 
     redirect '/'
   end
 
   patch '/lists' do
-    list = database[:lists].filter(id: params[:id])
-    list.update(params[:list])
+    list = database[:lists].where(id: params[:id])
+    list.update(params[:list].merge({ item_attributes: }))
 
     redirect "/lists/#{list.first[:id]}"
   end
 
   delete '/lists' do
-    database[:lists].filter(id: params[:id]).delete
+    database[:items].where(list_id: params[:id]).delete
+    database[:lists].where(id: params[:id]).delete
 
     redirect '/'
   end
 
   post '/lists/:id/items' do
-    database[:items].insert(params[:item].merge({ list_id: params[:id] }))
+    database[:items].insert(params[:item]
+                    .merge({ list_id: params[:id], attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{params[:id]}"
   end
 
   delete '/lists/:id/items' do
-    database[:items].filter(id: params[:item_id]).delete
+    database[:items].where(id: params[:item_id]).delete
 
     redirect "/lists/#{params[:id]}"
   end
@@ -55,5 +57,10 @@ class App < Sinatra::Base
 
   def database
     @database ||= Sequel.connect('sqlite://db/lists_database.db')
+  end
+
+  def item_attributes
+    item_attributes = params[:item_attributes]&.select { |_k, v| v[:name].strip != '' } || {}
+    item_attributes.empty? ? nil : item_attributes.to_json
   end
 end
