@@ -20,8 +20,8 @@
   <div id="item_attributes">
     <% list_item_attributes.each do |key, attribute| %>
       <div id="item_attribute_<%= key %>" class="item_attribute mb-3 d-flex gap-3">
-        <input name="item_attributes[<%= key %>][name]" value="<%= attribute["name"] %>" type="text" class="form-control" placeholder="Item's attribute">
-        <select name="item_attributes[<%= key %>][type]" class="form-control">
+        <input readonly name="item_attributes[<%= key %>][name]" value="<%= attribute["name"] %>" type="text" class="form-control" placeholder="Item's attribute">
+        <select disabled name="item_attributes[<%= key %>][type]" class="form-control">
           <option value="String" <%= :selected if attribute["type"] == "String" %>>String</option>
           <option value="Integer" <%= :selected if attribute["type"] == "Integer" %>>Integer</option></select>
         <button type="button" class="remove_item_attribute btn btn-danger" onclick="document.getElementById('item_attribute_<%= key %>').remove();">

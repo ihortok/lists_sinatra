@@ -40,17 +40,31 @@ class App < Sinatra::Base
     redirect '/'
   end
 
-  post '/lists/:id/items' do
-    database[:items].insert(params[:item]
-                    .merge({ list_id: params[:id], attributes: params[:attributes]&.to_json }))
+  get '/items/:id/edit' do
+    @item = database[:items].where(id: params[:id]).first
+    @list = database[:lists].where(id: @item[:list_id]).first
 
-    redirect "/lists/#{params[:id]}"
+    erb :'items/edit.html', layout: :'layouts/application.html'
   end
 
-  delete '/lists/:id/items' do
-    database[:items].where(id: params[:item_id]).delete
+  post '/items' do
+    database[:items].insert(params[:item]
+                    .merge({ attributes: params[:attributes]&.to_json }))
 
-    redirect "/lists/#{params[:id]}"
+    redirect "/lists/#{params[:item][:list_id]}"
+  end
+
+  patch '/items' do
+    item = database[:items].where(id: params[:id])
+    item.update(params[:item].merge({ attributes: params[:attributes]&.to_json }))
+
+    redirect "/lists/#{item.first[:list_id]}"
+  end
+
+  delete '/items' do
+    database[:items].where(id: params[:id]).delete
+
+    redirect "/lists/#{params[:list_id]}"
   end
 
   private
