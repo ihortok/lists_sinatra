@@ -1,12 +1,59 @@
+# frozen_string_literal: true
+
 class App < Sinatra::Base
   set :method_override, true
+  set :views, 'app/views'
+  enable :sessions
+  set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
+  # root
   get '/' do
     @lists = database[:lists]
 
     erb :'lists/index.html', layout: :'layouts/application.html'
   end
 
+  # users
+  get '/users/sign_up' do
+    redirect '/' if user_signed_in?
+
+    erb :'users/sign_up.html', layout: :'layouts/application.html'
+  end
+
+  post '/users/sign_up' do
+    redirect '/users/sign_up' unless email_valid? && password_valid?
+
+    password_digest = BCrypt::Password.create(params[:password])
+    database[:users].insert({ email: params[:email], password_digest: })
+    session[:user_id] = database[:users].where(email: params[:email]).first[:id]
+
+    redirect '/'
+  end
+
+  get '/users/sign_in' do
+    redirect '/' if user_signed_in?
+
+    erb :'users/sign_in.html', layout: :'layouts/application.html'
+  end
+
+  post '/users/sign_in' do
+    user = database[:users].where(email: params[:email])
+
+    redirect '/users/sign_in' unless user.first
+    redirect '/users/sign_in' unless BCrypt::Password.new(user.first[:password_digest]) == params[:password]
+
+    session[:user_id] = user.first[:id]
+
+    redirect '/'
+  end
+
+  delete '/users/sign_out' do
+    session.clear
+
+    redirect '/'
+  end
+
+  # lists
   get '/lists/:id' do
     @list = database[:lists].where(id: params[:id]).first
     @items = database[:items].where(list_id: params[:id]).all
@@ -40,6 +87,7 @@ class App < Sinatra::Base
     redirect '/'
   end
 
+  # items
   get '/items/:id/edit' do
     @item = database[:items].where(id: params[:id]).first
     @list = database[:lists].where(id: @item[:list_id]).first
@@ -48,8 +96,7 @@ class App < Sinatra::Base
   end
 
   post '/items' do
-    database[:items].insert(params[:item]
-                    .merge({ attributes: params[:attributes]&.to_json }))
+    database[:items].insert(params[:item].merge({ attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{params[:item][:list_id]}"
   end
@@ -67,6 +114,16 @@ class App < Sinatra::Base
     redirect "/lists/#{params[:list_id]}"
   end
 
+  helpers do
+    def user_signed_in?
+      !!current_user
+    end
+
+    def current_user
+      database[:users].where(id: session[:user_id]).first
+    end
+  end
+
   private
 
   def database
@@ -76,5 +133,20 @@ class App < Sinatra::Base
   def item_attributes
     item_attributes = params[:item_attributes]&.select { |_k, v| v[:name].strip != '' } || {}
     item_attributes.empty? ? nil : item_attributes.to_json
+  end
+
+  def email_valid?
+    return false unless params[:email]
+    return false if database[:users].where(email: params[:email]).any?
+
+    true
+  end
+
+  def password_valid?
+    return false unless params[:password]
+    return false if params[:password].length < 8
+    return false if params[:password].length > 20
+
+    true
   end
 end
