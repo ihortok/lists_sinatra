@@ -16,52 +16,55 @@
 
 <a href="/">back to lists</a>
 
-<form action="/lists/<%= @list[:id] %>/items" method="post" class="my-4" style="max-width: 500px">
-  <div class="">
+<form action="/items" method="post" class="my-4" style="max-width: 500px">
+  <input type="hidden" name="item[list_id]" value="<%= @list[:id] %>" />
+  <div class="mb-3">
+    <input name="item[name]" type="text" class="form-control" placeholder="Awesome item" aria-label="Name" required>
+  </div>
+  <% list_item_attributes.each do |attribute| %>
     <div class="mb-3">
-      <input name="item[name]" type="text" class="form-control" placeholder="Awesome item" aria-label="Name" required>
+      <input name="attributes[<%= attribute %>]" type="text" class="form-control" placeholder="<%= attribute %>">
     </div>
-    <% list_item_attributes.each do |attribute| %>
-      <div class="mb-3">
-        <input name="attributes[<%= attribute %>]" type="text" class="form-control" placeholder="<%= attribute %>">
-      </div>
-    <% end %>
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary">Create item</button>
-    </div>
+  <% end %>
+  <div class="text-center">
+    <button type="submit" class="btn btn-primary">Create item</button>
   </div>
 </form>
 
 <% if @items.empty? %>
   You haven't created any item for this list yet.
 <% else %>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <% list_item_attributes.each do |attribute| %>
-          <th><%= attribute %></th>
-        <% end %>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @items.each do |item| %>
-        <% item_attributes = JSON.parse(item[:attributes] || "{}") %>
+  <div class="overflow-auto">
+    <table class="table table-bordered">
+      <thead>
         <tr>
-          <td><%= item[:name] %></td>
+          <th>Name</th>
           <% list_item_attributes.each do |attribute| %>
-            <td><%= item_attributes[attribute] %></td>
+            <th><%= attribute %></th>
           <% end %>
-          <td>
-            <form action="/lists/<%= @list[:id] %>/items" method="post">
-              <input type="hidden" name="_method" value="DELETE">
-              <input type="hidden" name="item_id" value="<%= item[:id] %>" />
-              <button type="submit" class="confirm_action_button btn btn-danger">X</button>
-            </form>
-          </td>
+          <th class="text-center" style="width: 5%;">Actions</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @items.each do |item| %>
+          <% item_attributes = JSON.parse(item[:attributes] || "{}") %>
+          <tr>
+            <td><%= item[:name] %></td>
+            <% list_item_attributes.each do |attribute| %>
+              <td><%= item_attributes[attribute] %></td>
+            <% end %>
+            <td class="d-flex gap-1">
+              <a href="/items/<%= item[:id] %>/edit" class="btn btn-primary">Edit</a>
+              <form action="/items" method="post">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="id" value="<%= item[:id] %>" />
+                <input type="hidden" name="list_id" value="<%= @list[:id] %>" />
+                <button type="submit" class="confirm_action_button btn btn-danger">X</button>
+              </form>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>
