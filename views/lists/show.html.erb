@@ -10,7 +10,7 @@
   <form action="/lists" method="post">
     <input type="hidden" name="_method" value="DELETE">
     <input type="hidden" name="id" value="<%= @list[:id] %>" />
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <button type="submit" class="confirm_action_button btn btn-danger">Delete</button>
   </form>
 </div>
 
@@ -57,7 +57,7 @@
             <form action="/lists/<%= @list[:id] %>/items" method="post">
               <input type="hidden" name="_method" value="DELETE">
               <input type="hidden" name="item_id" value="<%= item[:id] %>" />
-              <button type="submit" class="btn btn-danger">X</button>
+              <button type="submit" class="confirm_action_button btn btn-danger">X</button>
             </form>
           </td>
         </tr>

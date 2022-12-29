@@ -1,6 +1,7 @@
 window.addEventListener("load", function () {
   const addItemAttributeButton = document.getElementById("add_item_attribute");
   const itemAttributesBlock = document.getElementById("item_attributes");
+  const confirmActionButtons = document.getElementsByClassName("confirm_action_button");
 
   function addNewItemAttribute(num) {
     let divItemAttribute = document.createElement("div");
@@ -41,6 +42,12 @@ window.addEventListener("load", function () {
       }
 
       addNewItemAttribute(num);
+    });
+  }
+
+  for(let i = 0; i < confirmActionButtons.length; i++) {
+    confirmActionButtons[i].addEventListener("click", function(e) {
+      if (confirm("Are you sure?") === false) { e.preventDefault(); }
     });
   }
 });
