@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   context: __dirname,
   entry: [
-    './app/javascript/main.js'
+    './app/assets/js/main.js'
   ],
   output: {
     path: path.resolve(__dirname, 'public/dist'),
