@@ -4,22 +4,42 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <meta name="msapplication-TileColor" content="#00aba9">
+  <meta name="msapplication-config" content="/favicon/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+
   <title>Lists</title>
   <script src="/dist/main.min.js"></script>
 </head>
 
 <body>
-  <div class="container">
-    <header>
-      <% if user_signed_in? %>
-        <form action="/users/sign_out" method="post">
-          <input type="hidden" name="_method" value="DELETE">
-          <button type="submit" class="btn btn-danger">Sign Out</button>
-        </form>
-      <% else %>
-        <a href="/users/sign_in" class="btn btn-primary">Sign In</a>
-      <% end %>
-    </header>
+  <header class="py-3 bg-light">
+    <div class="container">
+      <nav class="d-flex justify-content-<%= user_signed_in? ? 'between' : 'start' %>">
+        <% if user_signed_in? %>
+          <a href="/" class="btn btn-link pl-0" style="padding-left: 0">Home</a>
+          <form action="/users/sign_out" method="post">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-danger">Sign Out</button>
+          </form>
+        <% else %>
+          <% if sign_in_path? %>
+            <a href="/users/sign_up" class="btn btn-link" style="padding-left: 0">Sign Up</a>
+          <% elsif sign_up_path? %>
+            <a href="/users/sign_in" class="btn btn-link" style="padding-left: 0">Sign In</a>
+          <% end %>
+        <% end %>
+      </nav>
+    </div>
+  </header>
+  <div class="container py-3">
     <%= yield %>
   </div>
 </body>
