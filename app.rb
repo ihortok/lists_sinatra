@@ -6,6 +6,18 @@ class App < Sinatra::Base
   enable :sessions
   set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
+  before '/*' do
+    if user_signed_in?
+      return unless sign_in_or_sign_up_path?
+
+      redirect '/'
+    else
+      return if sign_in_or_sign_up_path?
+
+      redirect '/users/sign_in'
+    end
+  end
+
   # root
   get '/' do
     @lists = database[:lists]
@@ -15,8 +27,6 @@ class App < Sinatra::Base
 
   # users
   get '/users/sign_up' do
-    redirect '/' if user_signed_in?
-
     erb :'users/sign_up.html', layout: :'layouts/application.html'
   end
 
@@ -31,8 +41,6 @@ class App < Sinatra::Base
   end
 
   get '/users/sign_in' do
-    redirect '/' if user_signed_in?
-
     erb :'users/sign_in.html', layout: :'layouts/application.html'
   end
 
@@ -48,6 +56,8 @@ class App < Sinatra::Base
   end
 
   delete '/users/sign_out' do
+    redirect '/' unless user_signed_in?
+
     session.clear
 
     redirect '/'
@@ -121,6 +131,18 @@ class App < Sinatra::Base
 
     def current_user
       database[:users].where(id: session[:user_id]).first
+    end
+
+    def sign_in_path?
+      request.path_info == '/users/sign_in'
+    end
+
+    def sign_up_path?
+      request.path_info == '/users/sign_up'
+    end
+
+    def sign_in_or_sign_up_path?
+      sign_in_path? || sign_up_path?
     end
   end
 
