@@ -18,13 +18,6 @@ class App < Sinatra::Base
     end
   end
 
-  # root
-  get '/' do
-    @lists = database[:lists]
-
-    erb :'lists/index.html', layout: :'layouts/application.html'
-  end
-
   # users
   get '/users/sign_up' do
     erb :'users/sign_up.html', layout: :'layouts/application.html'
@@ -63,35 +56,42 @@ class App < Sinatra::Base
     redirect '/'
   end
 
+  # root
+  get '/' do
+    @lists = database[:lists].where(user_id: current_user[:id])
+
+    erb :'lists/index.html', layout: :'layouts/application.html'
+  end
+
   # lists
   get '/lists/:id' do
-    @list = database[:lists].where(id: params[:id]).first
-    @items = database[:items].where(list_id: params[:id]).all
+    @list = database[:lists].where(id: params[:id], user_id: current_user[:id]).first
+    @items = database[:items].where(list_id: @list[:id]).all
 
     erb :'lists/show.html', layout: :'layouts/application.html'
   end
 
   get '/lists/:id/edit' do
-    @list = database[:lists].where(id: params[:id]).first
+    @list = database[:lists].where(id: params[:id], user_id: current_user[:id]).first
 
     erb :'lists/edit.html', layout: :'layouts/application.html'
   end
 
   post '/lists' do
-    database[:lists].insert(params[:list].merge({ item_attributes: }))
+    database[:lists].insert(params[:list].merge({ user_id: current_user[:id], item_attributes: }))
 
     redirect '/'
   end
 
   patch '/lists' do
-    list = database[:lists].where(id: params[:id])
+    list = database[:lists].where(id: params[:id], user_id: current_user[:id])
     list.update(params[:list].merge({ item_attributes: }))
 
     redirect "/lists/#{list.first[:id]}"
   end
 
   delete '/lists' do
-    database[:items].where(list_id: params[:id]).delete
+    database[:items].where(list_id: params[:id], user_id: current_user[:id]).delete
     database[:lists].where(id: params[:id]).delete
 
     redirect '/'
@@ -99,27 +99,27 @@ class App < Sinatra::Base
 
   # items
   get '/items/:id/edit' do
-    @item = database[:items].where(id: params[:id]).first
+    @item = database[:items].where(id: params[:id], user_id: current_user[:id]).first
     @list = database[:lists].where(id: @item[:list_id]).first
 
     erb :'items/edit.html', layout: :'layouts/application.html'
   end
 
   post '/items' do
-    database[:items].insert(params[:item].merge({ attributes: params[:attributes]&.to_json }))
+    database[:items].insert(params[:item].merge({ user_id: current_user[:id], attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{params[:item][:list_id]}"
   end
 
   patch '/items' do
-    item = database[:items].where(id: params[:id])
+    item = database[:items].where(id: params[:id], user_id: current_user[:id])
     item.update(params[:item].merge({ attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{item.first[:list_id]}"
   end
 
   delete '/items' do
-    database[:items].where(id: params[:id]).delete
+    database[:items].where(id: params[:id], user_id: current_user[:id]).delete
 
     redirect "/lists/#{params[:list_id]}"
   end
