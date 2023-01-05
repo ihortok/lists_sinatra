@@ -27,8 +27,8 @@ class App < Sinatra::Base
     redirect '/users/sign_up' unless email_valid? && password_valid?
 
     password_digest = BCrypt::Password.create(params[:password])
-    database[:users].insert({ email: params[:email], password_digest: })
-    session[:user_id] = database[:users].where(email: params[:email]).first[:id]
+    DB[:users].insert({ email: params[:email], password_digest: })
+    session[:user_id] = DB[:users].where(email: params[:email]).first[:id]
 
     redirect '/'
   end
@@ -38,7 +38,7 @@ class App < Sinatra::Base
   end
 
   post '/users/sign_in' do
-    user = database[:users].where(email: params[:email])
+    user = DB[:users].where(email: params[:email])
 
     redirect '/users/sign_in' unless user.first
     redirect '/users/sign_in' unless BCrypt::Password.new(user.first[:password_digest]) == params[:password]
@@ -58,68 +58,68 @@ class App < Sinatra::Base
 
   # root
   get '/' do
-    @lists = database[:lists].where(user_id: current_user[:id])
+    @lists = DB[:lists].where(user_id: current_user[:id])
 
     erb :'lists/index.html', layout: :'layouts/application.html'
   end
 
   # lists
   get '/lists/:id' do
-    @list = database[:lists].where(id: params[:id], user_id: current_user[:id]).first
-    @items = database[:items].where(list_id: @list[:id]).all
+    @list = DB[:lists].where(id: params[:id], user_id: current_user[:id]).first
+    @items = DB[:items].where(list_id: @list[:id]).all
 
     erb :'lists/show.html', layout: :'layouts/application.html'
   end
 
   get '/lists/:id/edit' do
-    @list = database[:lists].where(id: params[:id], user_id: current_user[:id]).first
+    @list = DB[:lists].where(id: params[:id], user_id: current_user[:id]).first
 
     erb :'lists/edit.html', layout: :'layouts/application.html'
   end
 
   post '/lists' do
-    database[:lists].insert(params[:list].merge({ user_id: current_user[:id], item_attributes: }))
+    DB[:lists].insert(params[:list].merge({ user_id: current_user[:id], item_attributes: }))
 
     redirect '/'
   end
 
   patch '/lists' do
-    list = database[:lists].where(id: params[:id], user_id: current_user[:id])
+    list = DB[:lists].where(id: params[:id], user_id: current_user[:id])
     list.update(params[:list].merge({ item_attributes: }))
 
     redirect "/lists/#{list.first[:id]}"
   end
 
   delete '/lists' do
-    database[:items].where(list_id: params[:id], user_id: current_user[:id]).delete
-    database[:lists].where(id: params[:id]).delete
+    DB[:items].where(list_id: params[:id], user_id: current_user[:id]).delete
+    DB[:lists].where(id: params[:id]).delete
 
     redirect '/'
   end
 
   # items
   get '/items/:id/edit' do
-    @item = database[:items].where(id: params[:id], user_id: current_user[:id]).first
-    @list = database[:lists].where(id: @item[:list_id]).first
+    @item = DB[:items].where(id: params[:id], user_id: current_user[:id]).first
+    @list = DB[:lists].where(id: @item[:list_id]).first
 
     erb :'items/edit.html', layout: :'layouts/application.html'
   end
 
   post '/items' do
-    database[:items].insert(params[:item].merge({ user_id: current_user[:id], attributes: params[:attributes]&.to_json }))
+    DB[:items].insert(params[:item].merge({ user_id: current_user[:id], attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{params[:item][:list_id]}"
   end
 
   patch '/items' do
-    item = database[:items].where(id: params[:id], user_id: current_user[:id])
+    item = DB[:items].where(id: params[:id], user_id: current_user[:id])
     item.update(params[:item].merge({ attributes: params[:attributes]&.to_json }))
 
     redirect "/lists/#{item.first[:list_id]}"
   end
 
   delete '/items' do
-    database[:items].where(id: params[:id], user_id: current_user[:id]).delete
+    DB[:items].where(id: params[:id], user_id: current_user[:id]).delete
 
     redirect "/lists/#{params[:list_id]}"
   end
@@ -130,7 +130,7 @@ class App < Sinatra::Base
     end
 
     def current_user
-      database[:users].where(id: session[:user_id]).first
+      DB[:users].where(id: session[:user_id]).first
     end
 
     def sign_in_path?
@@ -148,14 +148,6 @@ class App < Sinatra::Base
 
   private
 
-  def database
-    @database ||= if ENV['RACK_ENV'] == 'development'
-                    Sequel.connect('sqlite://db/lists_database.db')
-                  else
-                    Sequel.connect("postgresql://#{ENV['LISTS_DATABASE_USERNAME']}:#{ENV['LISTS_DATABASE_PASSWORD']}@#{ENV['LISTS_DATABASE_HOST']}/#{ENV['LISTS_DATABASE_NAME']}")
-                  end
-  end
-
   def item_attributes
     item_attributes = params[:item_attributes]&.select { |_k, v| v[:name].strip != '' } || {}
     item_attributes.empty? ? nil : item_attributes.to_json
@@ -163,7 +155,7 @@ class App < Sinatra::Base
 
   def email_valid?
     return false unless params[:email]
-    return false if database[:users].where(email: params[:email]).any?
+    return false if DB[:users].where(email: params[:email]).any?
 
     true
   end
