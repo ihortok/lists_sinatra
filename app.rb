@@ -144,6 +144,15 @@ class App < Sinatra::Base
     def sign_in_or_sign_up_path?
       sign_in_path? || sign_up_path?
     end
+
+    def list_item_attribute_input_types
+      {
+        String: 'text',
+        Integer: 'number',
+        Checkbox: 'checkbox',
+        Datetime: 'datetime-local'
+      }
+    end
   end
 
   private
