@@ -26,7 +26,7 @@ bundle && yarn
 #### 3. Setup the database
 
 ```bash
-sequel -m db/migrations sqlite://db/lists_database.db
+rake db:migrate
 ```
 
 #### 4. Start the application
