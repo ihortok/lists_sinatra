@@ -6,6 +6,7 @@ namespace :db do
     db_host = ENV['LISTS_DATABASE_HOST']
     db_name = ENV['LISTS_DATABASE_NAME']
 
+    # `sequel -m db/migrations sqlite://db/lists_database.db`
     `sequel -m db/migrations postgresql://#{db_username}:#{db_password}@#{db_host}/#{db_name}`
   end
 end

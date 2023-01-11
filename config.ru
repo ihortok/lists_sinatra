@@ -4,11 +4,12 @@ require 'sinatra'
 require 'sequel'
 require 'bcrypt'
 
-DB = if ENV['RACK_ENV'] == 'development'
-       Sequel.connect('sqlite://db/lists_database.db')
-     else
-       Sequel.connect("postgresql://#{ENV['LISTS_DATABASE_USERNAME']}:#{ENV['LISTS_DATABASE_PASSWORD']}@#{ENV['LISTS_DATABASE_HOST']}/#{ENV['LISTS_DATABASE_NAME']}")
-     end
+db_username = ENV['LISTS_DATABASE_USERNAME']
+db_password = ENV['LISTS_DATABASE_PASSWORD']
+db_host = ENV['LISTS_DATABASE_HOST']
+db_name = ENV['LISTS_DATABASE_NAME']
+
+DB = Sequel.connect("postgresql://#{db_username}:#{db_password}@#{db_host}/#{db_name}")
 
 if ENV['RACK_ENV'] == 'development'
   require 'pry'
