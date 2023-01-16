@@ -1,4 +1,5 @@
-<% list_item_attributes = JSON.parse(@list[:item_attributes] || "{}").map { |_key, attribute| attribute["name"] } %>
+<% list_item_attributes = JSON.parse(@list[:item_attributes] || "{}") %>
+<% list_item_attribute_names = list_item_attributes.map { |_key, attribute| attribute["name"] } %>
 
 <h1><%= @list[:name] %></h1>
 
@@ -21,10 +22,19 @@
   <div class="mb-3">
     <input name="item[name]" type="text" class="form-control" placeholder="Awesome item" aria-label="Name" required>
   </div>
-  <% list_item_attributes.each do |attribute| %>
-    <div class="mb-3">
-      <input name="attributes[<%= attribute %>]" type="text" class="form-control" placeholder="<%= attribute %>">
-    </div>
+  <% list_item_attributes.each do |id, attribute| %>
+    <% if attribute["type"] == "Checkbox" %>
+      <div class="mb-3 form-check">
+        <label class="form-check-label">
+          <input name="attributes[<%= id %>]" type="checkbox" class="form-check-input">
+          <%= attribute["name"] %>
+        </label>
+      </div>
+    <% else %>
+      <div class="mb-3">
+        <input name="attributes[<%= id %>]" type="<%= list_item_attribute_input_types[attribute["type"].to_sym] %>" class="form-control" placeholder="<%= attribute["name"] %>">
+      </div>
+    <% end %>
   <% end %>
   <div class="text-center">
     <button type="submit" class="btn btn-primary">Create item</button>
@@ -39,8 +49,8 @@
       <thead>
         <tr>
           <th>Name</th>
-          <% list_item_attributes.each do |attribute| %>
-            <th><%= attribute %></th>
+          <% list_item_attribute_names.each do |attribute_name| %>
+            <th><%= attribute_name %></th>
           <% end %>
           <th class="text-center" style="width: 5%;">Actions</th>
         </tr>
@@ -50,8 +60,8 @@
           <% item_attributes = JSON.parse(item[:attributes] || "{}") %>
           <tr>
             <td><%= item[:name] %></td>
-            <% list_item_attributes.each do |attribute| %>
-              <td><%= item_attributes[attribute] %></td>
+            <% list_item_attributes.keys.each do |attribute_id| %>
+              <td><%= item_attributes[attribute_id] %></td>
             <% end %>
             <td class="d-flex gap-1">
               <a href="/items/<%= item[:id] %>/edit" class="btn btn-primary">Edit</a>

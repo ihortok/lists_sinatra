@@ -17,7 +17,12 @@ window.addEventListener("load", function () {
     let selectAttributeType = document.createElement("select");
     selectAttributeType.name = `item_attributes[${num}][type]`;
     selectAttributeType.classList = "form-control";
-    selectAttributeType.innerHTML = "<option value='String'>String</option><option value='Integer'>Integer</option>";
+    selectAttributeType.innerHTML = `
+      <option value='String'>String</option>
+      <option value='Integer'>Integer</option>
+      <option value='Datetime'>Datetime</option>
+      <option value='Checkbox'>Checkbox</option>
+    `;
 
     let buttonAttributeRemove = document.createElement("button");
     buttonAttributeRemove.type = "button";
@@ -35,7 +40,7 @@ window.addEventListener("load", function () {
   if (addItemAttributeButton !== null) {
     addItemAttributeButton.addEventListener("click", function(){
       let itemAttributes = document.getElementsByClassName("item_attribute");
-      let num = 0;
+      let num = 1;
 
       if (itemAttributes.length > 0) {
         num = parseInt(itemAttributes[itemAttributes.length - 1].id.split("_")[2]) + 1;
